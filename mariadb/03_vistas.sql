@@ -54,4 +54,23 @@ SELECT * FROM v_ventas_y_edad_promedio_oficina;
 -- Parte 3: Comparacion
 --================================================================================================================================================== 
 
+-- Vista simple
+-- a. Cree una vista que le permita obtener todos los datos de los clientes
+CREATE VIEW v_info_clientes AS
+SELECT * FROM customers
+-- b. Aumente el limite de credito de un cliente a traves de la vista
+UPDATE v_info_clientes
+SET credit_limit = 1000000
+WHERE cust_num = 2101;
 
+SELECT * FROM v_info_clientes
+-- c. Inserte un nuevo cliente a traves de la vista
+INSERT INTO v_info_clientes (cust_num, company, cust_rep, credit_limit)
+VALUES (2108, 'Coca Cola', 102, 20123);
+
+SELECT * FROM v_info_clientes
+-- d. Borre un cliente a traves de la vista
+DELETE FROM v_info_clientes
+WHERE cust_num = 2108;
+
+SELECT * FROM v_info_clientes
