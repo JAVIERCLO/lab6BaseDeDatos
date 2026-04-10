@@ -74,3 +74,75 @@ DELETE FROM v_info_clientes
 WHERE cust_num = 2108;
 
 SELECT * FROM v_info_clientes
+
+-- Vista con filtro
+-- a. Cree una vista que permita seleccionar los clientes que tienen más de 40000 de límite de crédito
+CREATE VIEW v_clientes_credito_mas_de_40000 AS
+SELECT * FROM customers
+WHERE credit_limit > 40000;
+
+SELECT * FROM v_clientes_credito_mas_de_40000
+-- b. Aumente el límite de crédito a cualquier cliente a 80000 a traves de la vista
+
+UPDATE v_clientes_credito_mas_de_40000
+SET credit_limit = 80000
+WHERE cust_num = 2102;
+
+SELECT * FROM v_clientes_credito_mas_de_40000
+-- c. Ponga el límite de credito al cliente "Acme Mfg" en 1000 a traves de la vista
+UPDATE v_clientes_credito_mas_de_40000
+SET credit_limit = 1000
+WHERE cust_num = 2107;
+
+SELECT * FROM v_clientes_credito_mas_de_40000;
+-- Vista con join
+-- a. Cree una vista que obtenga que muestre una lista donde, para cada cliente, aparezca, el nombre de la empresa (company) y el nombre del vendedor asignado
+CREATE VIEW v_cliente_vendedor AS
+SELECT c.company,
+s.name
+FROM customers c 
+JOIN salesRep s ON c.cust_rep = s.empl_num;
+
+SELECT * FROM v_cliente_vendedor;
+-- b. Cambiele el nombre a la compania ""JPC Inc." a traves de la vista
+UPDATE v_cliente_vendedor
+SET company = 'Monsters Inc.'
+WHERE company = 'JCP Inc.';
+
+SELECT * FROM v_cliente_vendedor;
+
+-- Vista con group by
+-- a. Cree una vista que obtenga, para cada cliente, el total de dinero que ha gastado en pedidos
+CREATE VIEW v_total_gastado_clientes AS
+SELECT c.cust_num,
+c.company,
+SUM(o.amount) AS total_gastado
+FROM orders o
+JOIN customers c ON o.cust = c.cust_num
+GROUP BY c.company;
+
+SELECT * FROM v_total_gastado_clientes;
+-- b. Actualice el total gastado para el cliente 2101 a traves de la vista
+UPDATE v_total_gastado_clientes
+SET total_gastado = 777
+WHERE cust_num = 2101;
+-- No Funciona el update
+
+-- Vista con opcion check
+-- a. Cree una vista que muestre unicamente los clientes cuyo limite de credito sea mayor a 40000. Ademas, asegurese de que cualquier modificacion realizada a traves de la vista no permita que un cliente deje de cumplir esa condicion.
+CREATE VIEW clientes_limite_de_credito_alto AS
+SELECT *
+FROM customers
+WHERE credit_limit > 40000
+WITH CHECK OPTION;
+
+SELECT * FROM clientes_limite_de_credito_alto;
+-- b. Establezca un limite en 10000 para el cliente 2102
+UPDATE clientes_limite_de_credito_alto
+SET credit_limit = 10000
+WHERE cust_num = 2102;
+-- El check funciona y no permite el cambio
+
+-- Vista materializada
+-- a. Cree una vista materializada que almacene la informacion de todos los pedidos en la base de datos
+-- No es posible crear vistas materializadas en MariaDB.
