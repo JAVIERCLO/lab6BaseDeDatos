@@ -1,6 +1,25 @@
---================================================================================================================================================== 
+SELECT FORMAT(Duration, 6)
+FROM information_schema.PROFILING;
+-- ================================================================================================================================================== 
+-- limpieza
+-- ================================================================================================================================================== 
+
+
+DROP VIEW IF EXISTS v_pedidos_empleado_102;
+DROP VIEW IF EXISTS v_clientes_pedidos_30000;
+DROP VIEW IF EXISTS v_oficinas;
+DROP VIEW IF EXISTS v_clientes_vendedores;
+DROP VIEW IF EXISTS v_ventas_y_edad_promedio_oficina;
+DROP VIEW IF EXISTS v_info_clientes;
+DROP VIEW IF EXISTS v_clientes_credito_mas_de_40000;
+DROP VIEW IF EXISTS v_cliente_vendedor;
+DROP VIEW IF EXISTS v_total_gastado_clientes;
+DROP VIEW IF EXISTS clientes_limite_de_credito_alto;
+DROP VIEW IF EXISTS
+
+-- ================================================================================================================================================== 
 -- Parte 2: vistas
---================================================================================================================================================== 
+-- ================================================================================================================================================== 
 
 -- Definir una vista para el empleado nº 102 que contenga solo los pedidos emitidos, por los clientes asignados al mismo
 CREATE VIEW v_pedidos_empleado_102 AS
@@ -10,7 +29,6 @@ JOIN customers c ON o.cust = c.cust_num
 WHERE c.cust_rep = 102;
 
 SELECT * FROM v_pedidos_empleado_102;
-
 -- Definir una vista, que muestre únicamente clientes que tienen más de Q30000 en pedidos registrados actualmente
 
 CREATE VIEW v_clientes_pedidos_30000 AS
@@ -57,23 +75,31 @@ SELECT * FROM v_ventas_y_edad_promedio_oficina;
 -- Vista simple
 -- a. Cree una vista que le permita obtener todos los datos de los clientes
 CREATE VIEW v_info_clientes AS
-SELECT * FROM customers
+SELECT * FROM customers;
 -- b. Aumente el limite de credito de un cliente a traves de la vista
 UPDATE v_info_clientes
 SET credit_limit = 1000000
 WHERE cust_num = 2101;
 
-SELECT * FROM v_info_clientes
+SET profiling = 1;
+SELECT * FROM v_info_clientes;
+SHOW PROFILES;
+
 -- c. Inserte un nuevo cliente a traves de la vista
 INSERT INTO v_info_clientes (cust_num, company, cust_rep, credit_limit)
-VALUES (2108, 'Coca Cola', 102, 20123);
+VALUES (1101, 'Coca Cola', 102, 20123);
 
-SELECT * FROM v_info_clientes
+SET profiling = 1;
+SELECT * FROM v_info_clientes;
+SHOW PROFILES;
+
 -- d. Borre un cliente a traves de la vista
-DELETE FROM v_info_clientes
-WHERE cust_num = 2108;
+DELETE FROM v_info_clientes;
+WHERE cust_num = 1101;
 
-SELECT * FROM v_info_clientes
+SET profiling = 1;
+SELECT * FROM v_info_clientes;
+SHOW PROFILES;
 
 -- Vista con filtro
 -- a. Cree una vista que permita seleccionar los clientes que tienen más de 40000 de límite de crédito
@@ -81,20 +107,29 @@ CREATE VIEW v_clientes_credito_mas_de_40000 AS
 SELECT * FROM customers
 WHERE credit_limit > 40000;
 
-SELECT * FROM v_clientes_credito_mas_de_40000
+SET profiling = 1;
+SELECT * FROM v_clientes_credito_mas_de_40000;
+SHOW PROFILES;
+
 -- b. Aumente el límite de crédito a cualquier cliente a 80000 a traves de la vista
 
 UPDATE v_clientes_credito_mas_de_40000
 SET credit_limit = 80000
 WHERE cust_num = 2102;
 
-SELECT * FROM v_clientes_credito_mas_de_40000
+SET profiling = 1;
+SELECT * FROM v_clientes_credito_mas_de_40000;
+SHOW PROFILES;
+
 -- c. Ponga el límite de credito al cliente "Acme Mfg" en 1000 a traves de la vista
 UPDATE v_clientes_credito_mas_de_40000
 SET credit_limit = 1000
 WHERE cust_num = 2107;
 
+SET profiling = 1;
 SELECT * FROM v_clientes_credito_mas_de_40000;
+SHOW PROFILES;
+
 -- Vista con join
 -- a. Cree una vista que obtenga que muestre una lista donde, para cada cliente, aparezca, el nombre de la empresa (company) y el nombre del vendedor asignado
 CREATE VIEW v_cliente_vendedor AS
@@ -103,13 +138,18 @@ s.name
 FROM customers c 
 JOIN salesRep s ON c.cust_rep = s.empl_num;
 
+SET profiling = 1;
 SELECT * FROM v_cliente_vendedor;
+SHOW PROFILES;
+
 -- b. Cambiele el nombre a la compania ""JPC Inc." a traves de la vista
 UPDATE v_cliente_vendedor
 SET company = 'Monsters Inc.'
 WHERE company = 'JCP Inc.';
 
+SET profiling = 1;
 SELECT * FROM v_cliente_vendedor;
+SHOW PROFILES;
 
 -- Vista con group by
 -- a. Cree una vista que obtenga, para cada cliente, el total de dinero que ha gastado en pedidos
@@ -121,7 +161,10 @@ FROM orders o
 JOIN customers c ON o.cust = c.cust_num
 GROUP BY c.company;
 
+SET profiling = 1;
 SELECT * FROM v_total_gastado_clientes;
+SHOW PROFILES;
+
 -- b. Actualice el total gastado para el cliente 2101 a traves de la vista
 UPDATE v_total_gastado_clientes
 SET total_gastado = 777
@@ -136,7 +179,10 @@ FROM customers
 WHERE credit_limit > 40000
 WITH CHECK OPTION;
 
+SET profiling = 1;
 SELECT * FROM clientes_limite_de_credito_alto;
+SHOW PROFILES;
+
 -- b. Establezca un limite en 10000 para el cliente 2102
 UPDATE clientes_limite_de_credito_alto
 SET credit_limit = 10000
