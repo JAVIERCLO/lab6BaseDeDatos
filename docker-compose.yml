@@ -8,6 +8,19 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DATABASE}
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - ./mariadb:/docker-entrypoint-initdb.d
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: lab7db
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./postgres:/docker-entrypoint-initdb.d
